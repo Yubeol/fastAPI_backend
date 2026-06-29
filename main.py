@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 import uvicorn
 from pydantic import BaseModel
 from typing import List
@@ -25,7 +25,7 @@ class EmployeeInput(BaseModel):
 
 
 # Database 계층
-EMPLOYEES: List[Employee] = [
+EMPLOYEE_TABLE: List[Employee] = [
     Employee(id='1', name="John", age=24, job="frontend", language="react", pay=400),
     Employee(id='2', name="Peter", age=35, job="backend", language="python", pay=500),
     Employee(id='3', name="Susan", age=24, job="db", language="postgres", pay=600),
@@ -34,21 +34,53 @@ EMPLOYEES: List[Employee] = [
 
 app = FastAPI()
 
-
 # web 계층
 @app.get("/employee", response_model=List[Employee])
 def read_employees():
-    return EMPLOYEES
+    global EMPLOYEE_TABLE
+    return EMPLOYEE_TABLE
 
+@app.get("/employee/{id}", response_model=Employee)
+def read_employee(id: str):
+    global EMPLOYEE_TABLE
+    employee = next((emp for emp in EMPLOYEE_TABLE if emp.id == id), None)
+    if employee is None:
+        raise HTTPException(status_code=404, detail="Employee not found")
+    return employee
 
-@app.get("/")
-async def root():
-    return {"message": "FastAPI RESTFul server running"}
+@app.post("/employee",response_model=Employee)
+def create_employee(employee_input: EmployeeInput):
+    global EMPLOYEE_TABLE
+    created_employee = Employee(
+        id = str(max(int(emp.id) for emp in EMPLOYEE_TABLE) + 1),
+        ** employee_input.model_dump(),
+    )
+    EMPLOYEE_TABLE = [
+        *EMPLOYEE_TABLE,
+        created_employee
+    ]
+    return created_employee
 
+@app.put("/employee/{id}", response_model=Employee)
+def update_employee(id: str, employee_input: EmployeeInput):
+    global EMPLOYEE_TABLE
+    updated_employee = Employee(
+        id=id,
+        **employee_input.model_dump()
+    )
+    EMPLOYEE_TABLE = [
+        updated_employee if emp.id == id else emp for emp in EMPLOYEE_TABLE
+    ]
+    return updated_employee
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
+@app.delete("/employee/{id}")
+def delete_employee(id: str):
+    global EMPLOYEE_TABLE
+    EMPLOYEE_TABLE = [
+        emp for emp in EMPLOYEE_TABLE if emp.id != id
+    ]
+    return id
+
 
 
 if __name__ == '__main__':
