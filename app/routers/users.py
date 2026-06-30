@@ -1,8 +1,8 @@
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.schemas import UserInputSchema, UserSchema
 from app.database import get_db
+from app.schemas import User, UserInput
 from app.services import *
 
 router = APIRouter(
@@ -11,33 +11,26 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=List[UserSchema])
+@router.get("", response_model=List[User])
 def web_read_users(db: Session = Depends(get_db)):
-    return get_all_user(db)
+    return get_all_users(db)
 
 
-@router.get("/{id}", response_model=UserSchema)
-def web_read_user(id: int, db: Session = Depends(get_db)):
-    return get_one_user(db, id)
+@router.get("/{user_id}", response_model=User)
+def web_read_user(user_id: int, db: Session = Depends(get_db)):
+    return get_user(db, user_id)
 
 
-@router.post("", response_model=UserSchema)
-def web_create_user(
-        user_input: UserInputSchema,
-        db: Session = Depends(get_db)
-):
+@router.post("", response_model=User)
+def web_create_user(user_input: UserInput, db: Session = Depends(get_db)):
     return create_user(db, user_input)
 
 
-@router.put("/{id}", response_model=UserSchema)
-def web_update_user(
-        id: int,
-        user_input: UserInputSchema,
-        db: Session = Depends(get_db)
-):
-    return update_user(db, id, user_input)
+@router.put("/{user_id}", response_model=User)
+def web_update_user(user_id: int, user_input: UserInput, db: Session = Depends(get_db)):
+    return update_user(db, user_id, user_input)
 
 
-@router.delete("/{id}")
-def web_delete_user(id: int, db: Session = Depends(get_db)):
-    return delete_user(db, id)
+@router.delete("/{user_id}")
+def web_delete_user(user_id: int, db: Session = Depends(get_db)):
+    return delete_user(db, user_id)

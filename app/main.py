@@ -8,7 +8,8 @@ from app.routers import (
     todos_router,
     products_router,
     users_router,
-    sales_router
+    sales_router,
+    auth_router
 )
 from app import models
 from app.database import Base, engine
@@ -37,7 +38,7 @@ app.include_router(todos_router)
 app.include_router(products_router)
 app.include_router(users_router)
 app.include_router(sales_router)
-
+app.include_router(auth_router)
 
 
 if __name__ == '__main__':

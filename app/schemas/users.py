@@ -1,21 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-
-class UserInputSchema(BaseModel):
-    name: str
+class UserInput(BaseModel):
+    username: str
     password: str
     age: int
     email: str
     city: str
-
-
-class UserSchema(BaseModel):
+class User(UserInput):
     id: int
-    name: str
-    password: str
-    age: int
-    email: str
-    city: str
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
