@@ -1,10 +1,10 @@
 from typing import List
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-
-from app.schemas import EmployeeInput as EmployeeInputSchema,Employee as EmployeeSchema
-from app.models import Employees
+from app.schemas import EmployeeInputSchema, EmployeeSchema
+from app.models import EmployeeModel
 from database import get_db
+from app.services import *
 
 router = APIRouter(
     prefix="/employees",
@@ -13,53 +13,31 @@ router = APIRouter(
 
 
 @router.get("", response_model=List[EmployeeSchema])
-def read_employees(db: Session = Depends(get_db)):
-    return db.query(Employees).all()
+def web_read_employees(db: Session = Depends(get_db)):
+    return get_all_employee(db)
 
 
 @router.get("/{id}", response_model=EmployeeSchema)
-def read_employee(id: str, db: Session = Depends(get_db)):
-    employee = db.query(Employees).filter(Employees.id == id).first()
-    if employee is None:
-        raise HTTPException(status_code=404, detail="Employee not found")
-    return employee
-
+def web_read_employee(id: str, db: Session = Depends(get_db)):
+    return get_one_employee(db, id)
 
 @router.post("", response_model=EmployeeSchema)
-def create_employee(
+def web_create_employee(
         employee_input: EmployeeInputSchema,
         db: Session = Depends(get_db)
 ):
-    created_employee = Employee(**employee_input.model_dump())
-    db.add(created_employee)
-    db.commit()
-    db.refresh(created_employee)
-    return created_employee
+    return create_employee(db, employee_input)
 
 
 @router.put("/{id}", response_model=EmployeeSchema)
-def update_employee(
+def web_update_employee(
         id: str,
         employee_input: EmployeeInputSchema,
         db: Session = Depends(get_db)
 ):
-    updated_employee = db.query(Employees).filter(Employees.id == id).first()
-    if updated_employee is None:
-        raise HTTPException(status_code=404, detail="Employee not found")
-
-    for key, value in employee_input.model_dump().items():
-        setattr(updated_employee, key, value)
-    db.commit()
-    db.refresh(updated_employee)
-    return updated_employee
+    return update_employee(db, id, employee_input)
 
 
 @router.delete("/{id}")
-def delete_employee(id: str, db: Session = Depends(get_db)):
-    employee = db.query(Employees).filter(Employees.id == id).first()
-    if employee is None:
-        raise HTTPException(status_code=404, detail="Employee not found")
-
-    db.delete(employee)
-    db.commit()
-    return {"message": f"Employee {id} deleted"}
+def web_delete_employee(id: str, db: Session = Depends(get_db)):
+    return delete_employee(db, id)
