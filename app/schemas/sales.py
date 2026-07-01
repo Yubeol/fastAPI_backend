@@ -1,24 +1,23 @@
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class SaleInputSchema(BaseModel):
-    date: date
-    product_code: int
-    customer_code: int
-    promotion_code: int
-    channel_code: int
+    user_id: int
+    product_id: int
     quantity: int
+    discount_rate: float
+    total_price: int
+    created_at: date
 
 
 class SaleSchema(BaseModel):
     id: int
-    date: date
-    product_code: int
-    customer_code: int
-    promotion_code: int
-    channel_code: int
+    user_id: int
+    product_id: int
     quantity: int
+    discount_rate: float
+    total_price: int
+    created_at: date
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

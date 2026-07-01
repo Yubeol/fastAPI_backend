@@ -1,16 +1,10 @@
-from pydantic import BaseModel
-from database import Base
+from app.database import Base
 from sqlalchemy import Column, Integer, String
 
-# ORM => Object Relation Mapping
-# ===== model 계층 =====
-# --- Employee ---
 class Employees(Base):
     __tablename__ = "employees"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50))
-    age = Column(Integer)
-    job = Column(String(50))
-    language = Column(String(50))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100))
+    email = Column(String(100))
+    job = Column(String(100))
     pay = Column(Integer)
-

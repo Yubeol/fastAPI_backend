@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ProductInputSchema(BaseModel):
     product_name: str
     color: str
-    cost_price: int
+    price: int
     sale_price: int
     category_code: str
 
@@ -13,9 +13,8 @@ class ProductSchema(BaseModel):
     id: int
     product_name: str
     color: str
-    cost_price: int
+    price: int
     sale_price: int
     category_code: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

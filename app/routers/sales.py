@@ -13,12 +13,12 @@ router = APIRouter(
 
 @router.get("", response_model=List[SaleSchema])
 def web_read_sales(db: Session = Depends(get_db)):
-    return get_all_sale(db)
+    return get_all_sales(db)
 
 
 @router.get("/{id}", response_model=SaleSchema)
 def web_read_sale(id: int, db: Session = Depends(get_db)):
-    return get_one_sale(db, id)
+    return get_sale(db, id)
 
 
 @router.post("", response_model=SaleSchema)

@@ -5,12 +5,12 @@ from app.schemas import SaleInputSchema
 from app.repositories import sale_repository
 
 
-def get_all_sale(db: Session):
+def get_all_sales(db: Session):
     return sale_repository.get_all(db)
 
 
-def get_one_sale(db: Session, id: int):
-    sale = sale_repository.get_one_by_id(db, id)
+def get_sale(db: Session, sale_id: int):
+    sale = sale_repository.get_one_by_id(db, sale_id)
     if not sale:
         raise HTTPException(status_code=404, detail="Sale not found")
     return sale
