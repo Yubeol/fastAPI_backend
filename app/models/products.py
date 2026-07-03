@@ -3,7 +3,7 @@ from app.database import Base
 
 
 class Products(Base):
-    __tablename__ = "products"
+    __tablename__ = "product"
 
     id = Column(Integer, primary_key=True, index=True)
     product_name = Column(String(100))

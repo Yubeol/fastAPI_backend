@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from app.utils.security import hash_password
 from app.database import sessionLocal
 from app.models import (
@@ -60,6 +61,7 @@ def import_todos(db, todos):
                 id=int(t["id"]),
                 subject=t["subject"],
                 checked=t["checked"],
+                created_at=date.today(),  # 👈 추가
             )
         )
 
@@ -79,7 +81,21 @@ def import_products(db, products):
 
 
 def import_sales(db, sales):
+    from app.models import UsersModel, ProductsModel
+
+    db.flush()  # 👈 추가: 지금까지 add()한 것들을 DB에 반영(커밋은 아님)
+
+    existing_user_ids = {row[0] for row in db.query(UsersModel.id).all()}
+    existing_product_ids = {row[0] for row in db.query(ProductsModel.id).all()}
+
     for s in sales:
+        if s["user_id"] not in existing_user_ids:
+            print(f"건너뜀(sales id={s['id']}): user_id={s['user_id']} 없음")
+            continue
+        if s["product_id"] not in existing_product_ids:
+            print(f"건너뜀(sales id={s['id']}): product_id={s['product_id']} 없음")
+            continue
+
         db.add(
             SalesModel(
                 id=int(s["id"]),
@@ -91,7 +107,6 @@ def import_sales(db, sales):
                 created_at=s["created_at"],
             )
         )
-
 
 def main():
     db = sessionLocal()
