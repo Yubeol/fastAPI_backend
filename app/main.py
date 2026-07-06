@@ -1,18 +1,10 @@
-from fastapi import FastAPI, HTTPException
-import uvicorn
-from pydantic import BaseModel
-from typing import List
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from app.routers import (
-    employees_router,
-    todos_router,
-    products_router,
-    users_router,
-    sales_router,
-    auth_router
-)
-from app import models
+from strawberry.fastapi import GraphQLRouter
+
 from app.database import Base, engine
+from app.graphql.schema import schema
+from app.graphql.context import get_context
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,20 +18,17 @@ app.add_middleware(
         "http://localhost:5174",
         "http://127.0.0.1:5174",
         "http://localhost:5175",
-        "http://127.0.0.1:5175"
+        "http://127.0.0.1:5175",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(employees_router)
-app.include_router(todos_router)
-app.include_router(products_router)
-app.include_router(users_router)
-app.include_router(sales_router)
-app.include_router(auth_router)
+graphql_app = GraphQLRouter(schema, context_getter=get_context)
+app.include_router(graphql_app, prefix="/graphql")
 
 
-if __name__ == '__main__':
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+@app.get("/")
+def read_root():
+    return {"message": "GraphQL API is running"}

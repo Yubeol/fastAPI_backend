@@ -1,3 +1,4 @@
+import strawberry
 from pydantic import BaseModel
 
 
@@ -13,3 +14,19 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     name: str | None = None
+
+
+# =====================================================
+# GraphQL Types
+# =====================================================
+
+@strawberry.input
+class LoginInput:
+    name: str
+    password: str
+
+
+@strawberry.type
+class TokenType:
+    access_token: str
+    token_type: str
